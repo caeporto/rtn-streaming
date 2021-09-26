@@ -1,0 +1,15 @@
+{
+  "name": "rtn-streaming",
+  "version": "1.0.0",
+  "description": "Real-Time Node.js Streaming",
+  "main": "index.js",
+  "keywords": [],
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Caetano Porto <caetanoportodasilva@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "async-mutex": "^0.3.2"
+  }
+}
