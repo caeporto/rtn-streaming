@@ -1,6 +1,6 @@
 {
   "name": "rtn-streaming",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Real-Time Node.js Streaming",
   "main": "index.js",
   "keywords": [],
