@@ -13,7 +13,7 @@ RTN-Streaming can stream via UDP or TCP Interleaved, as of now it is compliant w
 
 Run the RTSP Server:
 
-```
+```js
 let rtn_stream_server = require('rtn-streaming');
 
 rtn_stream_server.listen(8554, 8000, 8001);
@@ -36,5 +36,3 @@ And then watch it using ffplay:
 ```
 ffplay -rtsp_transport tcp rtsp://127.0.0.1:8554/livestream_test
 ```
-
-
