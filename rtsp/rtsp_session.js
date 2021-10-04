@@ -14,6 +14,8 @@ let rtsp_session = (function (){
         this.session_state = rtsp_states.SETUP;
         this.setup_stream_interleaved = false;
         this.read_stream_interleaved = {'stream_interleaved': false, 'next_index': 0};
+        this.sdp_read_flag = false;
+        this.save_prev_packet = null;
         /** server ports for RTP and RTCP communication */
         this.server_port_rtp_stream = rtp_port;
         this.server_port_rtcp_stream = rtcp_port;
@@ -157,10 +159,14 @@ let rtsp_session = (function (){
                 sdp_session.sdp_sessions[this.stream_path] = sdp_session.parse_sdp_session(data_tokens.slice(retIndex, data_tokens.length));
             }
         }
+        else if(!ret && rtspPacket.method === rtsp_method.announce){
+            this.sdp_read_flag = true;
+        }
 
         rtspPacket.session = this.session_id;
         rtspPacket.ssrc = this.ssrc;
         this.cseq++;
+        this.save_prev_packet = rtspPacket;
         return rtspPacket;
     }
 

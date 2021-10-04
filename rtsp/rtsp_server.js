@@ -204,7 +204,11 @@ let rtsp_server = (function (){
             if(curr_rtsp_session.setup_stream_interleaved){
                 mutex_operation.call(this, function () {
                     let stream_track = (stream_track_0 === undefined)? stream_track_1 : stream_track_0;
-                    delete self.write_to_stream[stream_track.ip_origin+'-'+stream_track.tcp_port+'-'+'/interleaved'];
+                    if(stream_track !== undefined) {
+                        delete self.write_to_stream[stream_track.ip_origin + '-' + stream_track.tcp_port + '-' + '/interleaved'];
+                    }
+                    delete self.stream_track[stream_path+'/streamid=0'];
+                    delete self.stream_track[stream_path+'/streamid=1'];
                     delete sdp_session.sdp_sessions[stream_path];
                     delete self.rtsp_sessions[session_id];
                     self.tcp_connections[session_id].destroy();
@@ -221,6 +225,8 @@ let rtsp_server = (function (){
                         delete self.write_to_stream[stream_track_1.ip_origin + '-' + stream_track_1.rtp_port + '/rtp'];
                         delete self.write_to_stream[stream_track_1.ip_origin + '-' + stream_track_1.rtcp_port + '/rtcp'];
                     }
+                    delete self.stream_track[stream_path+'/streamid=0'];
+                    delete self.stream_track[stream_path+'/streamid=1'];
                     delete sdp_session.sdp_sessions[stream_path];
                     delete self.rtsp_sessions[session_id];
                     self.tcp_connections[session_id].destroy();
@@ -280,7 +286,9 @@ let rtsp_server = (function (){
             if (rtsp_packet.method === rtsp_method.announce) {
                 this.router.setup_routes(rtsp_packet.url, this);
             }
-            this.em.emit('procData', rtsp_packet);
+            if (!session.sdp_read_flag) {
+                this.em.emit('procData', rtsp_packet);
+            }
         }).catch(function (error) {
             console.error(error.stack);
             console.log('Error processing RTSP data');
@@ -382,7 +390,18 @@ let rtsp_server = (function (){
                     }
                 } else {
                     console.log('Received: ' + data.toString());
-                    rtsp_process_data.call(self, session, data);
+                    if(session.sdp_read_flag){
+                        //in case sdp info came after announce process it here
+                        let stream_path = session.save_prev_packet.url;
+                        data = data.toString();
+                        data = data.split(/(?:\r\n|\r|\n)/g);
+                        sdp_session.sdp_sessions[stream_path] = sdp_session.parse_sdp_session(data);
+                        session.sdp_read_flag = false;
+                        self.em.emit('procData', session.save_prev_packet);
+                    }
+                    else {
+                        rtsp_process_data.call(self, session, data);
+                    }
                 }
             })
 
